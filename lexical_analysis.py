@@ -17,20 +17,6 @@ TOKEN_TABLE = {
 }
 
 
-# TOKEN_TABLE必须是 dict(string, list(Token))类型的
-def str_token_table():
-    global TOKEN_TABLE
-    token_table_string = TOKEN_TABLE
-    for k in token_table_string:
-        for index in range(len(token_table_string[k])):
-            try:
-                token_table_string[k][index] = token_table_string[k][index].__str__()
-            except:
-                raise Exception("Token Table类型比对，所有元素必须是实现了__str__的类型，最好是下面定义的Token类型")
-    return str(token_table_string)
-
-
-
 class Token:
     def __init__(self, name, location, type):
         self.name = name
@@ -42,6 +28,9 @@ class Token:
 
     def __str__(self):
         return "{name:%s, location:%d, type:%s}" % (self.name, self.location, self.type)
+
+    def __repr__(self):
+        return self.__str__()
 
 
 def operator_paras(s: str, loca):
@@ -152,4 +141,4 @@ if __name__ == '__main__':
         if p == -1:
             raise Exception("paras wrong")
     ''')
-    print(str_token_table())
+    print(TOKEN_TABLE)
