@@ -111,15 +111,15 @@ def paras(s: str):
     loca = 0
     paras_func = [num_paras, operator_paras, split_paras, keyword_paras, string_paras]
     while loca < len(s):
-        p = -1
+        paras_fail = True
         for func in paras_func:
             try:
                 loca = func(s, loca)
-                p = loca
+                paras_fail = False
                 break
             except:
                 continue
-        if p == -1:
+        if paras_fail:
             raise Exception("paras wrong")
 
 
