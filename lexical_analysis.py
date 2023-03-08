@@ -99,9 +99,9 @@ def string_paras(s: str, loca):
 def split_paras(s: str, loca):
     start_loca = loca
     while loca < len(s):
-        if s[loca] not in IDENTIFIER_TABLE["SPLIT"]:
-            if loca == start_loca:
-                raise Exception("split_paras wrong")
+        if s[loca] not in IDENTIFIER_TABLE["SPLIT"] and loca == start_loca:
+            raise Exception("split_paras wrong")
+        elif s[loca] not in IDENTIFIER_TABLE["SPLIT"]:
             return loca
         loca += 1
     return loca
