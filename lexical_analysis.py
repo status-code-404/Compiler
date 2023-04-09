@@ -22,7 +22,7 @@ class Token:
     def __init__(self, name, location, type):
         self.name = name
         self.location = location
-        self.type = type;
+        self.type = type
 
     def get_type(self):
         return self.type
