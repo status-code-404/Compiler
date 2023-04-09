@@ -4,7 +4,7 @@ IDENTIFIER_TABLE = {
     'HEXNUMBER': '0123456789abcdefABCDEF',
     'NUM_OPERATOR': '+-',
     'LETTER': 'abcdefghijklmnopqrstuvwxyzABCDEFGHIGKLMNOPQRSTUVWXYZ_',
-    'OPERATOR': '''=+-[];,./><:"'{}|()*&^%#!~''',
+    'OPERATOR': '''[];,./><:"'{}||()*&&^%#!~==+=-=*=''',
     'STRING_OPERATOR': "'" + '"',
     'SPLIT': '\n ',
 }
@@ -14,6 +14,7 @@ TOKEN_TABLE = {
     "STRING": [],
     "KEYWORD": [],
     "OPERATOR": [],
+    "SPLIT": [],
 }
 
 
@@ -21,7 +22,7 @@ class Token:
     def __init__(self, name, location, type):
         self.name = name
         self.location = location
-        self.type = type
+        self.type = type;
 
     def get_type(self):
         return self.type
@@ -35,9 +36,14 @@ class Token:
 
 def operator_paras(s: str, loca):
     global TOKEN_TABLE
-    if s[loca] in IDENTIFIER_TABLE['OPERATOR']:
-        TOKEN_TABLE["OPERATOR"].append(Token(s[loca], loca, 'OPERATOR'))
-        return loca + 1
+    now_loca = loca
+    if s[loca] in IDENTIFIER_TABLE["OPERATOR"]:
+        if len(s[loca:loca + 2] )== 2 and s[loca:loca + 2] in IDENTIFIER_TABLE["OPERATOR"]:
+            TOKEN_TABLE["OPERATOR"].append(Token(s[loca:loca + 2], loca, "OPERATOR"))
+            return loca + 2
+        else:
+            TOKEN_TABLE["OPERATOR"].append(Token(s[loca], loca, "OPERATOR"))
+            return loca + 1
     else:
         raise Exception("operator_paras wrong")
 
@@ -102,7 +108,9 @@ def split_paras(s: str, loca):
         if s[loca] not in IDENTIFIER_TABLE["SPLIT"] and loca == start_loca:
             raise Exception("split_paras wrong")
         elif s[loca] not in IDENTIFIER_TABLE["SPLIT"]:
-            return loca
+            break
+        elif s[loca] == "\n":
+            TOKEN_TABLE["SPLIT"].append(Token(None, start_loca, 'SPLIT'))
         loca += 1
     return loca
 
@@ -123,22 +131,63 @@ def paras(s: str):
             raise Exception("paras wrong")
 
 
+def sort_all_symbol():
+    global TOKEN_TABLE
+    paras_item = []
+    for type_ in TOKEN_TABLE:
+        for item in TOKEN_TABLE[type_]:
+            paras_item.append([item.location, item.type, item.name])
+    paras_item.sort()
+    last_level = 0
+    last_split_location = 0
+    last_is_split = True
+    for item in paras_item:
+        if last_is_split:
+            last_level = item[0] - last_split_location
+        if item[1] == "SPLIT":
+            last_split_location = item[0]
+            last_is_split = True
+        else:
+            last_is_split = False
+        item.append(last_level)
+
+    return paras_item
+
+
+# paras('''
+#     def paras(s: str):
+    #     loca = 0
+    #     paras_func = [num_paras, operator_paras, split_paras, keyword_paras, string_paras]
+    #     while loca < len(s):
+    #         p = -1
+    #         for func in paras_func:
+    #             try:
+    #                 loca = func(s, loca)
+    #                 p = loca
+    #                 break
+    #             except:
+    #                 continue
+    #         if p == -1:
+    #             raise Exception("paras wrong")
+# ''')
+
 if __name__ == '__main__':
     # 暂不支持注释， 暂时会将int这种解读成何变量一样的key word类型
     paras('''
-    def paras(s: str):
-    loca = 0
-    paras_func = [num_paras, operator_paras, split_paras, keyword_paras, string_paras]
-    while loca < len(s):
-        p = -1
-        for func in paras_func:
-            try:
-                loca = func(s, loca)
-                p = loca
-                break
-            except:
-                continue
-        if p == -1:
-            raise Exception("paras wrong")
+        def paras(s: str):
+            loca = 0
+            paras_func = [num_paras, operator_paras, split_paras, keyword_paras, string_paras]
+            while loca < len(s):
+                p = -1
+                for func in paras_func:
+                    try:
+                        loca = func(s, loca)
+                        p = loca
+                        break
+                    except:
+                        continue
+                if p == -1:
+                    raise Exception("paras wrong")
     ''')
     print(TOKEN_TABLE)
+    print(sort_all_symbol())
