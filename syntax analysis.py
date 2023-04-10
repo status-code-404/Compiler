@@ -40,7 +40,6 @@ def find_next_same_level(representation):
 
 
 def paras_to_syntax_node(node: Syntax_Node, representation: list):
-    # todo: 暂未支持def 函数解析，后面补上
     while len(representation) > 0 and representation[0][1] == "SPLIT":
         representation = representation[1:]
 
@@ -48,11 +47,11 @@ def paras_to_syntax_node(node: Syntax_Node, representation: list):
         return
 
     if len(representation) == 1:
-        if representation[0][1] == "KEYWORD" and representation[0][2] in "and or while if else switch elif ":
+        if representation[0][1] == "KEYWORD" and representation[0][2] in "and or while if else switch elif def class":
             raise Exception("syntax_parse Error, cant parse this")
         node.data = representation[0][2]
 
-    elif representation[0][1] == "KEYWORD" and representation[0][2] in "if elif while for":
+    elif representation[0][1] == "KEYWORD" and representation[0][2] in ["if", "elif", "while", "for", "def", "class"]:
         same_level_index = get_same_level_expression(representation)
         if same_level_index == -1:
             raise Exception("syntax_parser Error, keyword logical is not correct")
@@ -63,7 +62,7 @@ def paras_to_syntax_node(node: Syntax_Node, representation: list):
         node.init_son()
         paras_to_syntax_node(node.left, left_representation)
 
-        if representation[0][2] in "while for":
+        if representation[0][2] in "while for def class":
             paras_to_syntax_node(node.right, right_representation)
 
         elif representation[0][2] in "if elif":
@@ -109,13 +108,20 @@ if __name__ == '__main__':
     m = Syntax_Node()
 
     paras('''
-    while a<=10:
-        if a == 5:
-            b += 1
-        elif a== 20:
-            c += 1
-        else:
-            d+=1
+        def paras(s: str):
+            loca = 0
+            paras_func = [num_paras, operator_paras, split_paras, keyword_paras, string_paras]
+            while loca < len(s):
+                p = -1
+                for func in paras_func:
+                    try:
+                        loca = func(s, loca)
+                        p = loca
+                        break
+                    except:
+                        continue
+                if p == -1:
+                    raise Exception("paras wrong")
     ''')
     paras_to_syntax_node(m, sort_all_symbol())
     print(m)
